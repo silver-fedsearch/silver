@@ -1,28 +1,31 @@
 Silver federated search framework
 =================================
 
-Silver is a simple federated search framework written in *node.js*. It can take a text query and search several providers then combine the results. Queries can be passed to a URL and returned as a JSON document or sent via *socket.io* where results can be sent to the client application as they arrive. It is possible to write search plugins for the system and an example that searches ATLAS is included.
+Silver is a simple federated search framework written in *node.js*. It can take a text query and search several providers then combine the results. Queries can be passed to a URL and returned as a JSON document or sent via *socket.io* where results can be sent to the client application as they arrive. It is possible to write search plugins for the system and an example that searches [ATLAS](http://atlas.metabroadcast.com/) is included.
 
 
 INSTALLATION
 ------------
 
-Use *npm* to install *socket.io* and rester as these are both required by Silver to function. You should also have an up to date version of node.js installed.
+Use *npm* to install [socket.io](http://socket.io/) and [restler](https://github.com/danwrong/restler) as these are both required by Silver to function. You should also have an up to date version of node.js installed.
 
 
 RUNNING
 -------
 
 Check the configuration in the config.js file and change according to your requirements and then run the server from the command line with:
+    
     node silver-server.js
 
 More options are available by running:
+    
     node silver-server.js --help
 
 
 QUERYING VIA A URL
 ------------------
 Call the /search.json endpoint with a 'q' GET parameter with a URL encoded string of your query, e.g.
+    
     /search.json?q=my%20query
 
 
@@ -30,19 +33,23 @@ QUERYING VIA SOCKET.IO
 ----------------------
 You can call the server through socket.io and have the server send the results as it gets them. 
 Connect to the server with:
+    
     var socket = io.connect([SERVER URL]);
 
 Send the search with:
+    
     socket.emit('search', {
         q :[THE QUERY],
     });
 
 Handle the results with callbacks like this:
+    
     socket.on('result', function(data) {
         // display the result
     });
 
 When all results are in this is called:
+    
     socket.on('results_finished', function(data) {
         console.log("Results finished. There should be " + data + " result(s)");
     });
@@ -50,12 +57,14 @@ When all results are in this is called:
 
 WRITING A SEARCH PLUGIN
 -----------------------
-Adding search providers to Silver is relatively straightforward. An example is included to help you get started under /search_modules/AtlasSearch.js.
+Adding search providers to Silver is relatively straightforward. An example is included to help you get started under [/search_modules/AtlasSearch.js](search_modules/AtlasSearch.js).
 
-Silver loads the search plugins found at the paths in the searchProviders array in the config.js file. Specify the path to your search module here as you would if you were using  a require() call in node.js.
+Silver loads the search plugins found at the paths in the searchProviders array in the [config.js](config.js) file. Specify the path to your search module here as you would if you were using  a require() call in node.js.
 
 When a query is performed an initialisation function is called on your module. This take the following form:
+    
     var MySearch = function(q, config, fn)
+    
 The parameters are:
   q - the search string
   config - a section from the config.js file with the same name as the module file name. This should contain any settings your module needs such as API keys.
@@ -67,11 +76,13 @@ MySearch.prototype.run = function() {}
 This should return a SearchResult object (see modules/SearchResult) and call the fn callback in the following ways:
 
 For a result:
+
     fn(SearchResult_object, false)
 
 When your module has finished generating results:
+
     fn([Name of your module], true)
 
 
-Don't forget to export your module with module.exports at the end of the file.
+Don't forget to export your module with __module.exports__ at the end of the file.
 
