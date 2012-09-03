@@ -86,3 +86,6 @@ When your module has finished generating results:
 
 Don't forget to export your module with __module.exports__ at the end of the file.
 
+Other Notes
+-----------
+This work was partly funded by the Technology Strategy Board.
