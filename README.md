@@ -7,8 +7,20 @@ Silver is a simple federated search framework written in *node.js*. It can take 
 INSTALLATION
 ------------
 
-Use *npm* to install [socket.io](http://socket.io/) and [restler](https://github.com/danwrong/restler) as these are both required by Silver to function. You should also have an up to date version of node.js installed.
+Silver relies on some prerequisites to work. To download the source code you will need a copy of *git* this can be obtained from (http://git-scm.com/). You will also need to download and install a copy of Node.js this can be obtained from http://nodejs.org/download/. 
 
+Alternatively if you are using a Linux distribution with a package manager you may be able to install Node from there. If you are not downloading Node from their website you will also need to install _npm_ which is a package manager for Node add ons. For example the installation command for Debian (Wheezy), Ubuntu and Raspbian (for use on the Raspberry Pi) is:
+
+    sudo apt-get install git nodejs npm
+    
+Now you can check out the Silver source code and change into the source code directory with the commands:
+
+    git clone git@github.com:silver-fedsearch/silver.git
+    cd silver/
+    
+Finally, you will need to install the [socket.io](http://socket.io/) and [restler](https://github.com/danwrong/restler) modules using npm:
+
+    npm install socket.io restler
 
 RUNNING
 -------
