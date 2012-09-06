@@ -7,7 +7,7 @@ Silver is a simple federated search framework written in *node.js*. It can take 
 INSTALLATION
 ------------
 
-Silver relies on some prerequisites to work. To download the source code you will need a copy of *git* this can be obtained from (http://git-scm.com/). You will also need to download and install a copy of Node.js this can be obtained from http://nodejs.org/download/. 
+Silver relies on some prerequisites to work. To download the source code you will need a copy of *git* this can be obtained from (http://git-scm.com/). You will also need to download and install a copy of Node.js (version 0.6.19 or higher) this can be obtained from http://nodejs.org/download/. 
 
 Alternatively if you are using a Linux distribution with a package manager you may be able to install Node from there. If you are not downloading Node from their website you will also need to install _npm_ which is a package manager for Node add ons. For example the installation command for Debian (Wheezy), Ubuntu and Raspbian (for use on the Raspberry Pi) is:
 

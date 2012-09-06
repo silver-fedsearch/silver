@@ -35,6 +35,7 @@ var host = "127.0.0.1";
 var port = 8585;
 
 var searchObjects = {};
+var reactors = {};
 
 var init = function() {
 	// Load in search providers
@@ -44,8 +45,31 @@ var init = function() {
 		util.log("Loading " + searchProviderKey);
 		searchObjects[searchProviderKey] = require(searchProviderPath);
 	}
+	// load the reactors (modules called when a search result is received
+	for (var index in config.reactorProviders) {
+		var reactorProviderPath = config.reactorProviders[index];
+		var reactorProviderKey = path.basename(reactorProviderPath);
+		util.log("Loading " + reactorProviderKey);
+		var reactorObject = require(reactorProviderPath);
+		var reactor = new reactorObject(config[reactorProviderKey]);
+		reactors[reactorProviderKey] = reactor;
+	}
 	util.log("Server listening on " + host + ":" + port);
 	app.listen(port, host);
+};
+
+var reactorsInvoke = function() {
+	if (arguments.length > 0) {
+		var args = Array.prototype.slice.call(arguments);
+		var func = args.shift();
+		// call this function on each reactor
+		var reactorKeys = Object.keys(reactors);
+		for (var index in reactorKeys) {
+			var reactor = reactors[reactorKeys[index]];
+			var callback = reactor[func];
+			callback.apply(null, args);
+		}
+	}
 };
 
 var doSearches = function(q, fn) {
@@ -89,6 +113,8 @@ var app = http.createServer(function(req, res) {
 			res.writeHead(500);
 			res.end("500 Sorry something went wrong with your search");
 		}
+		
+
 	} else {
 		res.writeHead(404);
 		res.end("404 Page not found");
@@ -112,23 +138,31 @@ var printHelp = function() {
 
 io.sockets.on('connection', function(socket) {
 	
-	socket.on('search', function(data) {
+	reactorsInvoke('connection', socket);
+	
+	socket.on('disconnect', function() {
+		reactorsInvoke('disconnect', socket.id);
+	});
+	
+	socket.on('search', function(request) {
+		reactorsInvoke('reset', socket.id);
+		
 		var count = 0;
-		var rl = new ReadyListener(this.config.searchProviders.length, function() {
+		var rl = new ReadyListener(config.searchProviders.length, function() {
 			socket.emit('results_finished', count);
 		});
-		
 		var fn = function(result, finished) {
 			if (finished) {
 				rl.add(result);
 			} else if (result) {
 				socket.emit('result', result);
-				count++;				
+				count++;
+				reactorsInvoke('onResult', request, result, socket.id);
 			}
 		};
 		
 		try {
-			doSearches(data.q, fn);
+			doSearches(request.q, fn);
 		} catch (err) {
 			util.error("There was an error:");
 			util.error(err);
@@ -136,6 +170,10 @@ io.sockets.on('connection', function(socket) {
 		}
 		
 	});
+});
+
+io.sockets.on('disconnect', function(socket) {
+	reactors.Invoke('disconnect', socket);
 });
 
 process.on('uncaughtException', function (err) {
@@ -161,9 +199,9 @@ process.argv.forEach(function (val, index, array) {
 	    	  showHelpOnly = true;
 	      }
 	  }
-});
+	});
 
-// only start up app if the launch flag is set
+// only start up app if doing something other than just showing help
 if (showHelpOnly) {
 	process.exit(0);
 } else {
